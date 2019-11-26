@@ -254,6 +254,7 @@ def main():
     parser.add_argument('--eval_step',
                         type=int,
                         default=1000)
+
     parser.add_argument('--data_url',
                         type=str,
                         default="")

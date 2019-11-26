@@ -20,6 +20,8 @@ logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s -   %(message
 
 logger = logging.getLogger(__name__)
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 StopWordsList = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're", "you've", "you'll", "you'd", 'your', 'yours',
                  'yourself', 'yourselves', 'he', 'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's", 'its', 'itself',
                  'they', 'them', 'their', 'theirs', 'themselves', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are', 'was', 'were', 'be',
@@ -139,10 +141,10 @@ class DataAugmentor(object):
         token_ids = self.tokenizer.convert_tokens_to_ids(tokenized_text)
         segments_ids = [0] * (tokenized_len + 1) + [1] * (len(tokenized_text) - tokenized_len - 1)
 
-        tokens_tensor = torch.tensor([token_ids]).to('cuda')
-        segments_tensor = torch.tensor([segments_ids]).to('cuda')
+        tokens_tensor = torch.tensor([token_ids]).to(device)
+        segments_tensor = torch.tensor([segments_ids]).to(device)
 
-        self.model.to('cuda')
+        self.model.to(device)
 
         predictions = self.model(tokens_tensor, segments_tensor)
 
@@ -222,7 +224,7 @@ class AugmentProcessor(object):
     def read_augment_write(self):
         task_dir = os.path.join(self.glue_dir, self.task_name)
         train_samples = _read_tsv(os.path.join(task_dir, "train.tsv"))
-        output_filename = os.path.join(task_dir, "train_aug")
+        output_filename = os.path.join(task_dir, "train_aug.tsv")
 
         augment_ids_ = self.augment_ids[self.task_name]
         filter_flag = self.filter_flags[self.task_name]
@@ -242,7 +244,7 @@ class AugmentProcessor(object):
                         writer.writerow(line)
 
                 if (i+1) % 1000 == 0:
-                    logger.info(f"Having been processing {i+1} examples")
+                    logger.info("Having been processing {} examples".format(str(i+1)))
 
 
 def main():

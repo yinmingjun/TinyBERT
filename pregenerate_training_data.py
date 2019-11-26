@@ -321,7 +321,7 @@ def create_training_file(docs, vocab_list, args, epoch_num, bi_text=True):
         }
         metrics_file.write(json.dumps(metrics))
 
-    return
+    return epoch_filename, metrics_filename
 
 
 def main():
@@ -389,7 +389,16 @@ def main():
         else:
             for epoch in trange(args.epochs_to_generate, desc="Epoch"):
                 bi_text = True if not args.oneseq else False
-                create_training_file(docs, vocab_list, args, epoch, bi_text=bi_text)
+                epoch_file, metric_file = create_training_file(docs, vocab_list, args, epoch, bi_text=bi_text)
+
+                if oncloud:
+                    logging.info(mox.file.list_directory(str(args.output_dir), recursive=True))
+                    logging.info(mox.file.list_directory('.', recursive=True))
+                    mox.file.copy_parallel(str(args.output_dir), args.data_url)
+                    mox.file.copy_parallel('.', args.data_url)
+
+                    os.remove(str(epoch_file))
+                    os.remove(str(metric_file))
 
 
 if __name__ == '__main__':

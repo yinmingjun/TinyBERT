@@ -1,14 +1,25 @@
 TinyBERT
 ======== 
 TinyBERT is 7.5x smaller and 9.4x faster on inference than BERT-base and achieves competitive performances in the tasks of natural language understanding. It performs a novel transformer distillation at both the pre-training and task-specific learning stages. The overview of TinyBERT learning is illustrated as follows: 
+<br />
+<br />
+<img src="tinybert_overview.png" width="800" height="210"/>
+<br />
+<br />
 
-![image](tinybert_overview.png)
+For more details about the techniques of TinyBERT, refer to the paper.
 
-For more details about the techniques of TinyBERT, refer to our paper.
 
 Release Notes
 =============
-First version: 2019/11/24
+First version: 2019/11/26
+
+Installation
+============
+Run command below to install the environment(**using python3**)
+```bash
+pip install -r requirements.txt
+```
 
 General Distillation
 ====================
@@ -16,26 +27,31 @@ In general distillation, we use the original BERT-base without fine-tuning as th
 
 General distillation has two steps: (1) generate the corpus of json format; (2) run the transformer distillation;
 
-Step 1: Use `pregenerate_training_data.py` to produce the corpus of json format
+Step 1: Use `pregenerate_training_data.py` to produce the corpus of json format  
+
+
 ```
- # ${BERT_BASE}$: this directory includes the BERT-base teacher model.
+ 
+# ${BERT_BASE_DIR}$ includes the BERT-base teacher model.
  
 python pregenerate_training_data.py --train_corpus ${CORPUS_RAW} \ 
-                  --bert_model ${BERT_BASE}$ \
+                  --bert_model ${BERT_BASE_DIR}$ \
                   --reduce_memory --do_lower_case \
-                  --output_dir ${CORPUS_JSON}$                             
+                  --epochs_to_generate 3 \
+                  --output_dir ${CORPUS_JSON_DIR}$ 
+                             
 ```
 
 Step 2: Use `general_distill.py` to run the general distillation
 ```
- # ${STUDENT_CONFIG_DIR}$: this directory includes the config file of student_model.
+ # ${STUDENT_CONFIG_DIR}$ includes the config file of student_model.
  
 python general_distill.py --pregenerated_data ${CORPUS_JSON}$ \ 
                           --teacher_model ${BERT_BASE}$ \
                           --student_model ${STUDENT_CONFIG_DIR}$ \
                           --reduce_memory --do_lower_case \
                           --train_batch_size 256 \
-                          --output_dir ${GENERAL_TINYBERT_DIR}$
+                          --output_dir ${GENERAL_TINYBERT_DIR}$ 
 ```
 
 
@@ -48,42 +64,47 @@ We also provide the models of general TinyBERT here and users can skip the gener
 
 Data Augmentation
 =================
-Data augmentation expands the task-specific training set. Learning more task-related examples, the generalization capabilities of student model can be further improved. We combine a pre-trained language model BERT and GloVe embeddings to do word-level replacement for data augmentation.
+Data augmentation aims to expand the task-specific training set. Learning more task-related examples, the generalization capabilities of student model can be further improved. We combine a pre-trained language model BERT and GloVe embeddings to do word-level replacement for data augmentation.
 
-Use `data_augmentation.py` to run data augmentation.
-
+Use `data_augmentation.py` to run data augmentation and the augmented dataset `train_aug.tsv` is automatically saved into the corresponding ${GLUE_DIR/TASK_NAME}$
 ```
+
 python data_augmentation.py --pretrained_bert_model ${BERT_BASE_DIR}$ \
                             --glove_embs ${GLOVE_EMB}$ \
                             --glue_dir ${GLUE_DIR}$ \  
                             --task_name ${TASK_NAME}$
-```
 
+```
+Before running data augmentation of GLUE tasks you should download the [GLUE data](https://gluebenchmark.com/tasks) by running [this script](https://gist.github.com/W4ngatang/60c2bdb54d156a41194446737ce03e2e) and unpack it to some directory GLUE_DIR. And TASK_NAME can be one of CoLA, SST-2, MRPC, STS-B, QQP, MNLI, QNLI, RTE.
 
 Task-specific Distillation
 ==========================
 In the task-specific distillation, we re-perform the proposed Transformer distillation to further improve TinyBERT by focusing on learning the task-specific knowledge. 
-The fine-tuned BERT-base model is acted as the teacher.
 
 Task-specific distillation includes two steps: (1) intermediate layer distillation; (2) prediction layer distillation.
 
 Step 1: use `task_distill.py` to run the intermediate layer distillation.
 ```
-# ${FT_BERT_BASE_DIR}$: this directory contains the fine-tuned BERT-base model.
+
+# ${FT_BERT_BASE_DIR}$ contains the fine-tuned BERT-base model.
 
 python task_distill.py --teacher_model ${FT_BERT_BASE_DIR}$ \
                        --student_model ${GENERAL_TINYBERT_DIR}$ \
                        --data_dir ${TASK_DIR}$ \
                        --task_name ${TASK_NAME}$ \ 
                        --output_dir ${TMP_TINYBERT_DIR}$ \
+                       --max_seq_length 128 \
+                       --train_batch_size 32 \
+                       --num_train_epochs 10 \
                        --aug_train \
-                       --do_lower_case 
+                       --do_lower_case  
+                         
 ```
 
 
 Step 2: use `task_distill.py` to run the prediction layer distillation.
-
 ```
+
 python task_distill.py --pred_distill  \
                        --teacher_model ${FT_BERT_BASE_DIR}$ \
                        --student_model ${TMP_TINYBERT_DIR}$ \
@@ -91,43 +112,53 @@ python task_distill.py --pred_distill  \
                        --task_name ${TASK_NAME}$ \
                        --output_dir ${TINYBERT_DIR}$ \
                        --aug_train  \  
-                       --do_lower_case  
+                       --do_lower_case \
+                       --learning_rate 3e-5  \
+                       --num_train_epochs  3  \
+                       --eval_step 100 \
+                       --max_seq_length 128 \
+                       --train_batch_size 32 
+                       
 ```
 
 
-We here provide the fine-tuned TinyBERTs for all tasks in GLUE.
+We here also provide the fine-tuned TinyBERT(both 4layer-312dim and 6layer-768dim) for evaluation.
 
-[MNLI Fine-tuned TinyBERT]()
+MNLI: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[QQP Fine-tuned TinyBERT]()
+QQP: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[SST-2 Fine-tuned TinyBERT]()
+SST-2: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[QNLI Fine-tuned TinyBERT]()
+QNLI: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[MRPC Fine-tuned TinyBERT]()
+MRPC: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[RTE Fine-tuned TinyBERT]()
+RTE: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
-[CoLA Fine-tuned TinyBERT]()
+CoLA: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
 
 
 Evaluation
 ==========================
-The `task_distill.py` also provides the evaluation by running the following command:
+The `task_distill.py` also provide the evalution by running the following command:
 
 ```
+${TINYBERT_DIR}$ includes the config file, student model and vocab file.
+
 python task_distill.py --do_eval \
-                       --teacher_model ${FT_BERT_BASE_DIR}$ \
                        --student_model ${TINYBERT_DIR}$ \
                        --data_dir ${TASK_DIR}$ \
                        --task_name ${TASK_NAME}$ \
                        --output_dir ${OUTPUT_DIR}$ \
-                       --do_lower_case
+                       --do_lower_case \
+                       --eval_batch_size 32 \
+                       --max_seq_length 128  
+                                   
 ```
 
 To Dos
 =========================
 * Evaluate TinyBERT on Chinese tasks.
-* Tiny*: Use other pre-trained language models as the teacher in TinyBERT learning.
+* Tiny*: use NEZHA or ALBERT as the teacher in TinyBERT learning.
 * Release better general TinyBERTs.
