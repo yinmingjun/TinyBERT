@@ -160,5 +160,5 @@ python task_distill.py --do_eval \
 To Dos
 =========================
 * Evaluate TinyBERT on Chinese tasks.
-* Tiny*: use NEZHA or ALBERT as the teacher in TinyBERT learning.
+* Tiny*: use other pre-trained language models as the teacher in TinyBERT learning.
 * Release better general TinyBERTs.
