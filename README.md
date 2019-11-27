@@ -57,9 +57,9 @@ python general_distill.py --pregenerated_data ${CORPUS_JSON}$ \
 
 We also provide the models of general TinyBERT here and users can skip the general distillation.
 
-[TinyBERT]()
+[General TinyBERT(4layer-312dim)](https://drive.google.com/uc?export=download&id=1dDigD7QBv1BmE6pWU71pFYPgovvEqOOj)
 
-[6-layer TinyBERT]()
+[General TinyBERT(6layer-768dim)](https://drive.google.com/uc?export=download&id=1wXWR00EHK-Eb7pbyw0VP234i2JTnjJ-x)
 
 
 Data Augmentation
@@ -122,21 +122,11 @@ python task_distill.py --pred_distill  \
 ```
 
 
-We here also provide the fine-tuned TinyBERT(both 4layer-312dim and 6layer-768dim) for evaluation.
+We here also provide the fine-tuned TinyBERT(both 4layer-312dim and 6layer-768dim) for evaluation. Every task has its own folder where the corresponding model has been saved.
 
-MNLI: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
+[TinyBERT(4layer-312dim)](https://drive.google.com/uc?export=download&id=1_sCARNCgOZZFiWTSgNbE7viW_G5vIXYg) 
 
-QQP: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
-
-SST-2: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
-
-QNLI: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
-
-MRPC: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
-
-RTE: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
-
-CoLA: [TinyBERT(4layer-312dim)](), [TinyBERT(6layer-768dim)]()
+[TinyBERT(6layer-768dim)](https://drive.google.com/uc?export=download&id=1Vf0ZnMhtZFUE0XoD3hTXc6QtHwKr_PwS)
 
 
 Evaluation
