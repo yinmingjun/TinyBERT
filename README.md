@@ -75,7 +75,8 @@ python data_augmentation.py --pretrained_bert_model ${BERT_BASE_DIR}$ \
                             --task_name ${TASK_NAME}$
 
 ```
-where TASK_NAME can be one of CoLA, SST-2, MRPC, STS-B, QQP, MNLI, QNLI, RTE. Before running data augmentation of GLUE tasks you should download the [GLUE data](https://gluebenchmark.com/tasks) by running [this script](https://gist.github.com/W4ngatang/60c2bdb54d156a41194446737ce03e2e) and unpack it to some directory GLUE_DIR. Here we take [SST-2](https://drive.google.com/uc?export=download&id=1Mq3cPG0YnlrVz2Pa8TDqhtItAKgar6Uy) as an example, after running data augmentation, your GLUE_DIR should like this.
+where TASK_NAME can be one of CoLA, SST-2, MRPC, STS-B, QQP, MNLI, QNLI, RTE. Before running data augmentation of GLUE tasks you should download the [GLUE data](https://gluebenchmark.com/tasks) by running [this script](https://gist.github.com/W4ngatang/60c2bdb54d156a41194446737ce03e2e) and unpack it to some directory GLUE_DIR. Here we take [SST-2](https://drive.google.com/uc?export=download&id=1Mq3cPG0YnlrVz2Pa8TDqhtItAKgar6Uy) as an example.
+
 
 Task-specific Distillation
 ==========================
