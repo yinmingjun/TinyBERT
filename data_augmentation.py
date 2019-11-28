@@ -1,4 +1,3 @@
-
 import random
 import sys
 import os
@@ -118,7 +117,7 @@ class DataAugmentor(object):
 
     def _word_distance(self, word):
         if word not in self.vocab.keys():
-            return [word]
+            return []
         word_idx = self.vocab[word]
         word_emb = self.emb_norm[word_idx]
 
@@ -179,6 +178,9 @@ class DataAugmentor(object):
             candidate_words = self._word_distance(mask_token)
         else:
             logger.info("invalid input sentence!")
+        
+        if len(candidate_words)==0:
+            candidate_words.append(mask_token)
 
         return candidate_words
 
